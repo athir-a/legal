@@ -7,8 +7,10 @@ import numpy as np
 from fastembed import TextEmbedding
 
 
-DEFAULT_CORPUS_PATH = Path("../data/processed/legal_chunks.json")
-DEFAULT_INDEX_DIR = Path("rag/index")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+DEFAULT_CORPUS_PATH = PROJECT_ROOT / "data" / "processed" / "legal_chunks.json"
+DEFAULT_INDEX_DIR = PROJECT_ROOT / "rag" / "index"
 DEFAULT_MODEL_NAME = "BAAI/bge-small-en-v1.5"
 
 

@@ -11,19 +11,14 @@ CORPUS_PATH = (
 
 
 def validate_citations(citations):
-    """
-    Verify that every cited Act + section exists
-    in the verified legal corpus.
-    """
-
     with CORPUS_PATH.open("r", encoding="utf-8") as f:
         corpus = json.load(f)
 
-    valid_sections = {
+    verified_sections = {
         (
             item.get("act", "").upper(),
             str(item.get("section"))
-        )
+        ): item
         for item in corpus
         if item.get("section") is not None
     }
@@ -35,14 +30,20 @@ def validate_citations(citations):
         section = str(citation.get("section", ""))
 
         key = (act.upper(), section)
+        source = verified_sections.get(key)
 
         validated.append({
             "act": act,
             "section": section,
-            "valid": key in valid_sections,
+            "page": citation.get("page"),
+            "source": citation.get("source"),
+            "valid": source is not None,
         })
 
-    all_valid = all(item["valid"] for item in validated)
+    all_valid = (
+        len(validated) > 0
+        and all(item["valid"] for item in validated)
+    )
 
     return {
         "valid": all_valid,

@@ -8,7 +8,8 @@ from fastembed import TextEmbedding
 from build_index import build_faiss_index
 
 
-INDEX_DIR = Path("rag/index")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INDEX_DIR = PROJECT_ROOT / "rag" / "index"
 INDEX_PATH = INDEX_DIR / "legal_index.faiss"
 METADATA_PATH = INDEX_DIR / "metadata.json"
 
