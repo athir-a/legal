@@ -23,11 +23,11 @@ def generate_local_answer(question, evidence):
 
     # Reject questions when the retrieved legal evidence is too weak.
     max_score = max(
-        float(item.get("retrieval_score", 0.0))
+        float(item.get("score", item.get("retrieval_score", 0.0)))
         for item in evidence
     )
 
-    if max_score < 0.30:
+    if max_score < 0.10:
         return {
             "answer": (
                 "I could not find enough verified information in the "

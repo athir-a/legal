@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { problems, suggestTopics } from "../data";
 import Icon from "../components/Icon";
 import ProblemDetail from "../components/ProblemDetail";
+import ReadAloud from "../components/ReadAloud";
 
 export default function Understand({
   draft,
@@ -13,6 +14,10 @@ export default function Understand({
   const [listening, setListening] = useState(false);
   const [status, setStatus] = useState("");
   const [suggestions, setSuggestions] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+  const [aiResponse, setAiResponse] = useState(null);
+  const [sessionId, setSessionId] = useState("");
 
   const recognition = useRef(null);
   const resultRef = useRef(null);
@@ -132,6 +137,7 @@ export default function Understand({
 
   function choose(problem) {
     setSelected(problem.id);
+    setAiResponse(null);
 
     requestAnimationFrame(() => {
       resultRef.current?.focus();
@@ -143,7 +149,7 @@ export default function Understand({
     });
   }
 
-  function findTopic(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (!draft.trim()) {
@@ -154,8 +160,53 @@ export default function Understand({
     }
 
     setSelected(null);
-    setSuggestions(suggestTopics(draft));
-    setStatus("");
+    setSuggestions(null);
+    setAiResponse(null);
+    setLoading(true);
+    setStatus("Analyzing your request with AI agent...");
+
+    const mappedLang = language.startsWith("ml") ? "ml" : "en";
+
+    try {
+      const response = await fetch("/api/ask/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: draft,
+          language: mappedLang,
+          session_id: sessionId || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.detail || "API request failed.");
+      }
+
+      setAiResponse(data);
+      if (data.session_id) {
+        setSessionId(data.session_id);
+      }
+      setStatus("");
+
+      requestAnimationFrame(() => {
+        resultRef.current?.focus();
+        resultRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+    } catch (err) {
+      console.error("Legal AI Backend Error:", err);
+      setStatus(
+        `Error connecting to backend: ${err.message || "Please check backend server."}`
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   const chosen = problems.find(
@@ -299,7 +350,7 @@ export default function Understand({
               : "Voice is unavailable in this browser. You can type or choose a situation instead."}
           </p>
 
-          <form onSubmit={findTopic}>
+          <form onSubmit={handleSubmit}>
             <label htmlFor="problem">
               Or type what happened
             </label>
@@ -325,9 +376,9 @@ export default function Understand({
               <button
                 type="submit"
                 className="button primary"
-                disabled={listening}
+                disabled={listening || loading}
               >
-                Find a topic
+                {loading ? "Asking AI agent..." : "Ask Legal AI"}
                 <Icon name="arrow" size={18} />
               </button>
             </div>
@@ -408,7 +459,71 @@ export default function Understand({
         </aside>
       </section>
 
-      {chosen && (
+      {aiResponse && (
+        <div
+          ref={resultRef}
+          tabIndex={-1}
+          className="result-anchor"
+        >
+          <article className="result-card">
+            <div className="result-top">
+              <span className="eyebrow">
+                AI Legal Analysis
+              </span>
+
+              {aiResponse.supported ? (
+                <span className="tag" style={{ background: "#eaf0e6", color: "#254b40" }}>
+                  ✓ Supported by Legal Corpus
+                </span>
+              ) : (
+                <span className="tag" style={{ background: "#fff3cd", color: "#856404" }}>
+                  General Legal Information
+                </span>
+              )}
+            </div>
+
+            <h2>Legal Guidance</h2>
+
+            <div className="lead" style={{ whiteSpace: "pre-wrap" }}>
+              {aiResponse.answer}
+            </div>
+
+            {aiResponse.citations && aiResponse.citations.length > 0 && (
+              <div className="note" style={{ marginTop: "1.5rem" }}>
+                <strong>
+                  Verified Legal Citations
+                </strong>
+
+                <ul className="check-list" style={{ marginTop: "0.5rem" }}>
+                  {aiResponse.citations.map((citation, idx) => (
+                    <li key={idx}>
+                      <strong>{citation.act}</strong> — Section {citation.section} {citation.source ? `(${citation.source})` : ""}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="result-bottom" style={{ marginTop: "1.5rem" }}>
+              <ReadAloud text={aiResponse.answer} />
+
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => window.print()}
+              >
+                Print this response ↗
+              </button>
+            </div>
+
+            <p className="small muted" style={{ marginTop: "1rem" }}>
+              Session ID: {aiResponse.session_id} · Correlation ID: {aiResponse.correlation_id}
+            </p>
+          </article>
+        </div>
+      )}
+
+      {chosen && !aiResponse && (
         <div
           ref={resultRef}
           tabIndex={-1}

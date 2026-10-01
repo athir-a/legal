@@ -43,11 +43,13 @@ _CONCEPT_EXPANSIONS = (
         re.compile(
             r"\b(defect(?:ive)?|malfunction\w*|faulty|damaged|broken|"
             r"does not work|doesn't work|will not work|won't work|"
-            r"will not boot|won't boot|not booting|failed to boot|not working)\b"
+            r"will not boot|won't boot|not booting|failed to boot|not working|"
+            r"stopped working|stop working|stopped|mixer|appliance|product|item|bought)\b"
         ),
         (
             "defective product",
             "manufacturing defect",
+            "defect in goods",
         ),
     ),
     (
@@ -62,7 +64,7 @@ _CONCEPT_EXPANSIONS = (
         "service_provider",
         re.compile(
             r"\b(service provider|service cent(?:er|re)|repair cent(?:er|re)|"
-            r"authorized service|authorised service|repair service)\b"
+            r"authorized service|authorised service|repair service|repair|technician)\b"
         ),
         (
             "product service provider",
@@ -137,11 +139,35 @@ _CONCEPT_EXPANSIONS = (
     ),
     (
         "service_deficiency",
-        re.compile(r"\b(deficien\w*|faulty service|inadequate service)\b"),
+        re.compile(r"\b(deficien\w*|faulty service|inadequate service|delay|delayed|unfinished)\b"),
         (
             "deficiency in service",
             "fault imperfection shortcoming",
             "quality nature and manner of performance",
+        ),
+    ),
+    (
+        "excess_price",
+        re.compile(r"\b(charged more|overcharg\w*|excess price|more than mrp|higher price|billed more|extra charge)\b"),
+        (
+            "excess price charged",
+            "price fixed by law displayed on goods",
+        ),
+    ),
+    (
+        "misleading_ad",
+        re.compile(r"\b(advertis\w*|mislead\w*|false claim|fake claim|misrepresentation)\b"),
+        (
+            "misleading advertisement",
+            "false description guarantee",
+        ),
+    ),
+    (
+        "hazardous_goods",
+        re.compile(r"\b(unsafe|hazard\w*|spark|electric\w*|fire|danger\w*|injury)\b"),
+        (
+            "hazardous to life and safety",
+            "right to safety",
         ),
     ),
 )

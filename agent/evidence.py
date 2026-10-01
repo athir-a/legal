@@ -85,7 +85,7 @@ def build_evidence(results, query="", max_sections=5):
     for result in results:
 
         retrieval_score = float(result.get("score", 0.0))
-        if retrieval_score < 0.30:
+        if retrieval_score < 0.10:
             continue
 
         chunk_id = result.get("chunk_id")
