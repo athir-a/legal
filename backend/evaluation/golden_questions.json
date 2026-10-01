@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "question": "What is a consumer under the Consumer Protection Act, 2019?",
+    "expected_sections": ["2"]
+  },
+  {
+    "id": 2,
+    "question": "What are the rights of consumers under the Consumer Protection Act?",
+    "expected_sections": ["2"]
+  },
+  {
+    "id": 3,
+    "question": "What is an unfair trade practice?",
+    "expected_sections": ["2"]
+  },
+  {
+    "id": 4,
+    "question": "What is product liability under the Consumer Protection Act?",
+    "expected_sections": ["83", "84", "85", "86", "87"]
+  },
+  {
+    "id": 5,
+    "question": "How can a consumer file a complaint?",
+    "expected_sections": ["35"]
+  },
+  {
+    "id": 6,
+    "question": "What is the limitation period for filing a consumer complaint?",
+    "expected_sections": ["69"]
+  },
+  {
+    "id": 7,
+    "question": "What is the Central Consumer Protection Authority?",
+    "expected_sections": ["10"]
+  },
+  {
+    "id": 8,
+    "question": "What are the powers and functions of the Central Consumer Protection Authority?",
+    "expected_sections": ["18"]
+  },
+  {
+    "id": 9,
+    "question": "What relief can the District Commission grant to a consumer?",
+    "expected_sections": ["39"]
+  },
+  {
+    "id": 10,
+    "question": "What is the procedure after a consumer complaint is admitted?",
+    "expected_sections": ["38"]
+  },
+  {
+    "id": 11,
+    "question": "What is the jurisdiction of the District Consumer Commission?",
+    "expected_sections": ["34"]
+  },
+  {
+    "id": 12,
+    "question": "What is the role of mediation in consumer disputes?",
+    "expected_sections": ["74", "75", "76"]
+  },
+  {
+    "id": 13,
+    "question": "What are the provisions relating to misleading advertisements?",
+    "expected_sections": ["21"]
+  },
+  {
+    "id": 14,
+    "question": "What measures can be taken to prevent unfair trade practices in e-commerce?",
+    "expected_sections": ["94"]
+  },
+  {
+    "id": 15,
+    "question": "What is a product liability action?",
+    "expected_sections": ["83"]
+  },
+  {
+    "id": 16,
+    "question": "When is a product manufacturer liable for harm caused by a defective product?",
+    "expected_sections": ["84"]
+  },
+  {
+    "id": 17,
+    "question": "When can a consumer appeal against an order of the District Commission?",
+    "expected_sections": ["41"]
+  },
+  {
+    "id": 18,
+    "question": "What penalties can apply for misleading advertisements?",
+    "expected_sections": ["21"]
+  },
+  {
+    "id": 19,
+    "question": "What are the provisions relating to consumer protection in direct selling?",
+    "expected_sections": ["94"]
+  },
+  {
+    "id": 20,
+    "question": "What does the Consumer Protection Act say about mediation cells?",
+    "expected_sections": ["74"]
+  }
+]

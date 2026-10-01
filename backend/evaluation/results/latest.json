@@ -1,0 +1,481 @@
+{
+  "timestamp": "2026-10-01T17:20:36.798239+00:00",
+  "endpoint": "http://127.0.0.1:8001/api/ask/",
+  "warmup_count": 2,
+  "total_queries": 20,
+  "percentile_method": "Linear interpolation on sorted successful request latencies; position = (n - 1) * percentile (inclusive/R-7 method).",
+  "latency_population": "successful HTTP 2xx requests with JSON object responses",
+  "results": [
+    {
+      "id": "01",
+      "category": "Definitions",
+      "question": "What is a consumer under the Consumer Protection Act, 2019?",
+      "expected_sections": [
+        "2"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1394.6318,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "2"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "2"
+      ]
+    },
+    {
+      "id": "02",
+      "category": "Definitions",
+      "question": "What does the Act mean by a defect in goods?",
+      "expected_sections": [
+        "2"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1195.4114,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "2"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "2"
+      ]
+    },
+    {
+      "id": "03",
+      "category": "Consumer rights",
+      "question": "What are the rights of consumers under the Consumer Protection Act, 2019?",
+      "expected_sections": [
+        "2"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1203.6774,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "2"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "2"
+      ]
+    },
+    {
+      "id": "04",
+      "category": "Complaint process",
+      "question": "Who can file a consumer complaint and how may it be filed?",
+      "expected_sections": [
+        "35"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1169.3424,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "35"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "35"
+      ]
+    },
+    {
+      "id": "05",
+      "category": "Complaint process",
+      "question": "What procedure does the District Commission follow after admitting a complaint?",
+      "expected_sections": [
+        "38"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1244.238,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 2,
+      "citation_sections": [
+        "38",
+        "36"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "38"
+      ]
+    },
+    {
+      "id": "06",
+      "category": "Limitation period",
+      "question": "What is the limitation period for filing a consumer complaint?",
+      "expected_sections": [
+        "69"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1155.1578,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "69"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "69"
+      ]
+    },
+    {
+      "id": "07",
+      "category": "Product liability",
+      "question": "What provisions govern a product liability action and its participants?",
+      "expected_sections": [
+        "83",
+        "84",
+        "85",
+        "86",
+        "87"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1160.1405,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 5,
+      "citation_sections": [
+        "83",
+        "87",
+        "86",
+        "84",
+        "85"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "83",
+        "84",
+        "85",
+        "86",
+        "87"
+      ]
+    },
+    {
+      "id": "08",
+      "category": "Manufacturer liability",
+      "question": "When is a product manufacturer liable for harm caused by a defective product?",
+      "expected_sections": [
+        "84"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1423.0926,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 5,
+      "citation_sections": [
+        "84",
+        "83",
+        "82",
+        "86",
+        "87"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "84"
+      ]
+    },
+    {
+      "id": "09",
+      "category": "Seller liability",
+      "question": "When can a product seller be liable in a product liability action?",
+      "expected_sections": [
+        "86"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1241.1681,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 5,
+      "citation_sections": [
+        "83",
+        "87",
+        "86",
+        "84",
+        "85"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "86"
+      ]
+    },
+    {
+      "id": "10",
+      "category": "Service provider liability",
+      "question": "When can a product service provider be liable for harm?",
+      "expected_sections": [
+        "85"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1203.3315,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 2,
+      "citation_sections": [
+        "85",
+        "83"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "85"
+      ]
+    },
+    {
+      "id": "11",
+      "category": "Product liability exceptions",
+      "question": "What exceptions apply to a product liability action?",
+      "expected_sections": [
+        "87"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1256.2391,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 5,
+      "citation_sections": [
+        "83",
+        "87",
+        "86",
+        "84",
+        "85"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "87"
+      ]
+    },
+    {
+      "id": "12",
+      "category": "Consumer remedies",
+      "question": "What relief may the District Commission grant to a consumer?",
+      "expected_sections": [
+        "39"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1091.0971,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "39"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "39"
+      ]
+    },
+    {
+      "id": "13",
+      "category": "District Commission",
+      "question": "What is the pecuniary jurisdiction of the District Commission?",
+      "expected_sections": [
+        "34"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1064.5802,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "34"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "34"
+      ]
+    },
+    {
+      "id": "14",
+      "category": "State Commission",
+      "question": "What matters fall within the jurisdiction of the State Commission?",
+      "expected_sections": [
+        "47"
+      ],
+      "expected_supported": null,
+      "latency_ms": 991.9774,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "47"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "47"
+      ]
+    },
+    {
+      "id": "15",
+      "category": "National Commission",
+      "question": "What matters fall within the jurisdiction of the National Commission?",
+      "expected_sections": [
+        "58"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1066.5955,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "58"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "58"
+      ]
+    },
+    {
+      "id": "16",
+      "category": "Unfair trade practices",
+      "question": "What constitutes an unfair trade practice under the Act?",
+      "expected_sections": [
+        "2"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1006.543,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 2,
+      "citation_sections": [
+        "2",
+        "94"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "2"
+      ]
+    },
+    {
+      "id": "17",
+      "category": "E-commerce",
+      "question": "What consumer-protection measures may be prescribed for e-commerce entities?",
+      "expected_sections": [
+        "94"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1164.4103,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 1,
+      "citation_sections": [
+        "94"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "94"
+      ]
+    },
+    {
+      "id": "18",
+      "category": "Mediation",
+      "question": "How does mediation work in consumer disputes under the Act?",
+      "expected_sections": [
+        "74",
+        "75",
+        "76"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1078.303,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 3,
+      "citation_sections": [
+        "74",
+        "75",
+        "76"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "74",
+        "75",
+        "76"
+      ]
+    },
+    {
+      "id": "19",
+      "category": "Consumer authorities",
+      "question": "What are the powers and functions of the Central Consumer Protection Authority?",
+      "expected_sections": [
+        "18"
+      ],
+      "expected_supported": null,
+      "latency_ms": 1287.2757,
+      "http_status": 200,
+      "supported": true,
+      "citation_count": 3,
+      "citation_sections": [
+        "10",
+        "18",
+        "3"
+      ],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [
+        "18"
+      ]
+    },
+    {
+      "id": "20",
+      "category": "Corpus coverage check",
+      "question": "What exact compensation did the Supreme Court award in 2022 in Sharma v. ABC Electronics for a refrigerator defect?",
+      "expected_sections": [],
+      "expected_supported": false,
+      "latency_ms": 1165.129,
+      "http_status": 200,
+      "supported": false,
+      "citation_count": 0,
+      "citation_sections": [],
+      "success": true,
+      "error": null,
+      "expected_sections_found": [],
+      "support_expectation_met": true
+    }
+  ],
+  "aggregates": {
+    "latency": {
+      "p50_ms": 1167.2357,
+      "p95_ms": 1396.05484,
+      "average_ms": 1178.11709,
+      "minimum_ms": 991.9774,
+      "maximum_ms": 1423.0926,
+      "successful_latency_samples": 20,
+      "percentile_method": "Linear interpolation on sorted successful request latencies; position = (n - 1) * percentile (inclusive/R-7 method)."
+    },
+    "response_behavior": {
+      "successful_requests": 20,
+      "failed_requests": 0,
+      "unsupported_responses": 1,
+      "responses_with_citations": 19,
+      "expected_section_matches": 25,
+      "expected_section_total": 25,
+      "expected_section_recall": 1.0
+    }
+  },
+  "report": "Queries: 20\nWarm-up: 2 (excluded from all metrics)\nEndpoint: http://127.0.0.1:8001/api/ask/\n\n## LATENCY\nP50:       1167.24 ms\nP95:       1396.05 ms\nAverage:   1178.12 ms\nMinimum:   991.98 ms\nMaximum:   1423.09 ms\nPercentiles use linear interpolation at position (n - 1) * p.\nOnly successful HTTP+JSON requests are included in latency metrics.\n\n## RESPONSE BEHAVIOR\nSuccessful:        20/20\nFailed:            0/20\nUnsupported:       1/20\nWith citations:    19/20\nExpected sections: 25/25 matched\n\n## PER-QUERY RESULTS\nID   Category                   Latency       Status   Supported   Citations\n01   Definitions                1394.63 ms    200      Yes         1\n02   Definitions                1195.41 ms    200      Yes         1\n03   Consumer rights            1203.68 ms    200      Yes         1\n04   Complaint process          1169.34 ms    200      Yes         1\n05   Complaint process          1244.24 ms    200      Yes         2\n06   Limitation period          1155.16 ms    200      Yes         1\n07   Product liability          1160.14 ms    200      Yes         5\n08   Manufacturer liability     1423.09 ms    200      Yes         5\n09   Seller liability           1241.17 ms    200      Yes         5\n10   Service provider liability 1203.33 ms    200      Yes         2\n11   Product liability exceptio 1256.24 ms    200      Yes         5\n12   Consumer remedies          1091.10 ms    200      Yes         1\n13   District Commission        1064.58 ms    200      Yes         1\n14   State Commission           991.98 ms     200      Yes         1\n15   National Commission        1066.60 ms    200      Yes         1\n16   Unfair trade practices     1006.54 ms    200      Yes         2\n17   E-commerce                 1164.41 ms    200      Yes         1\n18   Mediation                  1078.30 ms    200      Yes         3\n19   Consumer authorities       1287.28 ms    200      Yes         3\n20   Corpus coverage check      1165.13 ms    200      No          0\n\nInternal stage timings are not exposed by /api/ask/; these values are client-observed end-to-end latency.\n\n========================================================================"
+}

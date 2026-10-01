@@ -1,0 +1,123 @@
+[
+  {
+    "id": "01",
+    "category": "Definitions",
+    "question": "What is a consumer under the Consumer Protection Act, 2019?",
+    "expected_sections": ["2"]
+  },
+  {
+    "id": "02",
+    "category": "Definitions",
+    "question": "What does the Act mean by a defect in goods?",
+    "expected_sections": ["2"]
+  },
+  {
+    "id": "03",
+    "category": "Consumer rights",
+    "question": "What are the rights of consumers under the Consumer Protection Act, 2019?",
+    "expected_sections": ["2"]
+  },
+  {
+    "id": "04",
+    "category": "Complaint process",
+    "question": "Who can file a consumer complaint and how may it be filed?",
+    "expected_sections": ["35"]
+  },
+  {
+    "id": "05",
+    "category": "Complaint process",
+    "question": "What procedure does the District Commission follow after admitting a complaint?",
+    "expected_sections": ["38"]
+  },
+  {
+    "id": "06",
+    "category": "Limitation period",
+    "question": "What is the limitation period for filing a consumer complaint?",
+    "expected_sections": ["69"]
+  },
+  {
+    "id": "07",
+    "category": "Product liability",
+    "question": "What provisions govern a product liability action and its participants?",
+    "expected_sections": ["83", "84", "85", "86", "87"]
+  },
+  {
+    "id": "08",
+    "category": "Manufacturer liability",
+    "question": "When is a product manufacturer liable for harm caused by a defective product?",
+    "expected_sections": ["84"]
+  },
+  {
+    "id": "09",
+    "category": "Seller liability",
+    "question": "When can a product seller be liable in a product liability action?",
+    "expected_sections": ["86"]
+  },
+  {
+    "id": "10",
+    "category": "Service provider liability",
+    "question": "When can a product service provider be liable for harm?",
+    "expected_sections": ["85"]
+  },
+  {
+    "id": "11",
+    "category": "Product liability exceptions",
+    "question": "What exceptions apply to a product liability action?",
+    "expected_sections": ["87"]
+  },
+  {
+    "id": "12",
+    "category": "Consumer remedies",
+    "question": "What relief may the District Commission grant to a consumer?",
+    "expected_sections": ["39"]
+  },
+  {
+    "id": "13",
+    "category": "District Commission",
+    "question": "What is the pecuniary jurisdiction of the District Commission?",
+    "expected_sections": ["34"]
+  },
+  {
+    "id": "14",
+    "category": "State Commission",
+    "question": "What matters fall within the jurisdiction of the State Commission?",
+    "expected_sections": ["47"]
+  },
+  {
+    "id": "15",
+    "category": "National Commission",
+    "question": "What matters fall within the jurisdiction of the National Commission?",
+    "expected_sections": ["58"]
+  },
+  {
+    "id": "16",
+    "category": "Unfair trade practices",
+    "question": "What constitutes an unfair trade practice under the Act?",
+    "expected_sections": ["2"]
+  },
+  {
+    "id": "17",
+    "category": "E-commerce",
+    "question": "What consumer-protection measures may be prescribed for e-commerce entities?",
+    "expected_sections": ["94"]
+  },
+  {
+    "id": "18",
+    "category": "Mediation",
+    "question": "How does mediation work in consumer disputes under the Act?",
+    "expected_sections": ["74", "75", "76"]
+  },
+  {
+    "id": "19",
+    "category": "Consumer authorities",
+    "question": "What are the powers and functions of the Central Consumer Protection Authority?",
+    "expected_sections": ["18"]
+  },
+  {
+    "id": "20",
+    "category": "Corpus coverage check",
+    "question": "What exact compensation did the Supreme Court award in 2022 in Sharma v. ABC Electronics for a refrigerator defect?",
+    "expected_sections": [],
+    "expected_supported": false
+  }
+]

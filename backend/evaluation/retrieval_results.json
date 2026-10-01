@@ -1,0 +1,348 @@
+[
+  {
+    "id": 1,
+    "question": "What is a consumer under the Consumer Protection Act, 2019?",
+    "expected": [
+      "2"
+    ],
+    "retrieved": [
+      "2",
+      "18",
+      "3",
+      "10",
+      "1"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 2,
+    "question": "What are the rights of consumers under the Consumer Protection Act?",
+    "expected": [
+      "2"
+    ],
+    "retrieved": [
+      "2",
+      "18",
+      "10",
+      "3",
+      "6"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 3,
+    "question": "What is an unfair trade practice?",
+    "expected": [
+      "2"
+    ],
+    "retrieved": [
+      "2",
+      "94",
+      "18",
+      "39",
+      "19"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 4,
+    "question": "What is product liability under the Consumer Protection Act?",
+    "expected": [
+      "83",
+      "84",
+      "85",
+      "86",
+      "87"
+    ],
+    "retrieved": [
+      "83",
+      "86",
+      "87",
+      "84",
+      "85"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 5,
+    "question": "How can a consumer file a complaint?",
+    "expected": [
+      "35"
+    ],
+    "retrieved": [
+      "35",
+      "38",
+      "18",
+      "2",
+      "81"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 6,
+    "question": "What is the limitation period for filing a consumer complaint?",
+    "expected": [
+      "69"
+    ],
+    "retrieved": [
+      "69",
+      "38",
+      "18",
+      "41",
+      "2"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 7,
+    "question": "What is the Central Consumer Protection Authority?",
+    "expected": [
+      "10"
+    ],
+    "retrieved": [
+      "10",
+      "18",
+      "3",
+      "20",
+      "21"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 8,
+    "question": "What are the powers and functions of the Central Consumer Protection Authority?",
+    "expected": [
+      "18"
+    ],
+    "retrieved": [
+      "10",
+      "18",
+      "3",
+      "20",
+      "21"
+    ],
+    "hit@1": false,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 9,
+    "question": "What relief can the District Commission grant to a consumer?",
+    "expected": [
+      "39"
+    ],
+    "retrieved": [
+      "39",
+      "28",
+      "18",
+      "34",
+      "47"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 10,
+    "question": "What is the procedure after a consumer complaint is admitted?",
+    "expected": [
+      "38"
+    ],
+    "retrieved": [
+      "38",
+      "18",
+      "79",
+      "36",
+      "81"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 11,
+    "question": "What is the jurisdiction of the District Consumer Commission?",
+    "expected": [
+      "34"
+    ],
+    "retrieved": [
+      "34",
+      "28",
+      "47",
+      "58",
+      "18"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 12,
+    "question": "What is the role of mediation in consumer disputes?",
+    "expected": [
+      "74",
+      "75",
+      "76"
+    ],
+    "retrieved": [
+      "74",
+      "75",
+      "76",
+      "18",
+      "28"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 13,
+    "question": "What are the provisions relating to misleading advertisements?",
+    "expected": [
+      "21"
+    ],
+    "retrieved": [
+      "21",
+      "17",
+      "16",
+      "49",
+      "10"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 14,
+    "question": "What measures can be taken to prevent unfair trade practices in e-commerce?",
+    "expected": [
+      "94"
+    ],
+    "retrieved": [
+      "94",
+      "2",
+      "18",
+      "101",
+      "17"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 15,
+    "question": "What is a product liability action?",
+    "expected": [
+      "83"
+    ],
+    "retrieved": [
+      "83",
+      "87",
+      "86",
+      "84",
+      "85"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 16,
+    "question": "When is a product manufacturer liable for harm caused by a defective product?",
+    "expected": [
+      "84"
+    ],
+    "retrieved": [
+      "84",
+      "83",
+      "82",
+      "86",
+      "87"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 17,
+    "question": "When can a consumer appeal against an order of the District Commission?",
+    "expected": [
+      "41"
+    ],
+    "retrieved": [
+      "41",
+      "73",
+      "67",
+      "28",
+      "51"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 18,
+    "question": "What penalties can apply for misleading advertisements?",
+    "expected": [
+      "21"
+    ],
+    "retrieved": [
+      "21",
+      "17",
+      "16",
+      "10",
+      "89"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 19,
+    "question": "What are the provisions relating to consumer protection in direct selling?",
+    "expected": [
+      "94"
+    ],
+    "retrieved": [
+      "94",
+      "18",
+      "10",
+      "3",
+      "6"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  },
+  {
+    "id": 20,
+    "question": "What does the Consumer Protection Act say about mediation cells?",
+    "expected": [
+      "74"
+    ],
+    "retrieved": [
+      "74",
+      "75",
+      "76",
+      "18",
+      "10"
+    ],
+    "hit@1": true,
+    "hit@3": true,
+    "hit@5": true
+  }
+]

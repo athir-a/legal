@@ -1,133 +1,78 @@
-# Verified Legal Research Assistant - Backend
+# Verified Legal Research Assistant
 
-Minimal Django + Django REST Framework backend for the **Verified Legal Research Assistant**.
+## Local and Demo Setup
 
-## Requirements
-- Python 3.10+
-- Django >= 5.0, < 6.2
-- djangorestframework >= 3.15, < 4.0
+Python 3.10+, Node.js, MySQL 8, and the project dependencies are required. From the repository root, create a private `.env` using `.env.example` as a template. Keep `DJANGO_DEBUG=1` for local development. For the hackathon runtime, configure `USE_MYSQL=1` and a MySQL account with access to the `legal_rag` database. Do not use the example password or a root account in a deployed environment.
 
----
+The backend loads the root `.env`. With `USE_MYSQL=1`, it requires `MYSQL_DATABASE`, `MYSQL_USER`, and `MYSQL_PASSWORD`; host and port default to `127.0.0.1:3306`. Without `USE_MYSQL`, only local development uses SQLite. Production (`DJANGO_DEBUG=0`) requires `DJANGO_SECRET_KEY` and an explicit `DJANGO_ALLOWED_HOSTS` list.
 
-## 1. Setup & Installation
+Create the MySQL database and least-privilege account using your MySQL administrator, then grant that account access to the application database. Install and migrate from `backend/`:
 
-Navigate into the `backend/` directory:
-
-```bash
-cd backend
+```sql
+CREATE DATABASE legal_rag CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'legal_app'@'localhost' IDENTIFIED BY 'use-a-generated-password';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP
+ON legal_rag.* TO 'legal_app'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
-*(Optional but recommended)* Create and activate a virtual environment:
+The account needs schema privileges for Django migrations. Restrict the account host and privileges to the deployment environment where possible.
 
-```bash
-# Windows
-py -m venv venv
-venv\Scripts\activate
-
-# Linux / macOS
-python3 -m venv venv
-source venv/bin/activate
-```
-
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 2. Database Migrations
-
-Apply the standard migrations:
-
-```bash
-python manage.py migrate
-```
-*(On Windows without `python` in PATH, use `py manage.py migrate`)*
-
----
-
-## 3. Run the Development Server
-
-Start the Django development server:
-
-```bash
-python manage.py runserver
-```
-*(Or `py manage.py runserver`)*
-
-The server will be available at `http://127.0.0.1:8000/`.
-
----
-
-## 4. Run Tests
-
-To execute the test suite:
-
-```bash
-python manage.py test
-```
-*(Or `py manage.py test`)*
-
----
-
-## 5. API Specification
-
-### Endpoint: `POST /api/ask/`
-
-Submit a legal question for verified research.
-
-#### Headers
-```http
-Content-Type: application/json
-```
-
-#### Request Body
-```json
-{
-  "session_id": "abc123",
-  "question": "What does Section 123 of BNS say?"
-}
-```
-
-- `session_id` *(optional, string)*: Identifier for maintaining session context.
-- `question` *(required, string)*: The legal inquiry. Must not be empty or whitespace-only.
-
-#### Valid Response (HTTP 200 OK)
-```json
-{
-  "answer": "This is a temporary mock answer.",
-  "supported": true,
-  "citations": []
-}
-```
-
-#### Validation Error Response (HTTP 400 Bad Request)
-Returned when `question` is missing, empty, or whitespace-only:
-```json
-{
-  "question": [
-    "question field is required."
-  ]
-}
-```
-
----
-
-## 6. Testing the Endpoint
-
-### Using cURL
-```bash
-curl -X POST http://127.0.0.1:8000/api/ask/ \
-     -H "Content-Type: application/json" \
-     -d "{\"session_id\": \"abc123\", \"question\": \"What does Section 123 of BNS say?\"}"
-```
-
-### Using PowerShell
 ```powershell
-Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/ask/" `
-  -Method Post `
-  -ContentType "application/json" `
-  -Body '{"session_id": "abc123", "question": "What does Section 123 of BNS say?"}' | ConvertTo-Json
+.\.venv311\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv311\Scripts\python.exe manage.py migrate
+.\.venv311\Scripts\python.exe manage.py showmigrations legaldata
 ```
+
+The migrations create `LegalDocument`, `LegalChunk`, `ChatSession`, and `ChatMessage`. The corpus importer and chunker are available if a fresh database needs corpus data:
+
+```powershell
+.\.venv311\Scripts\python.exe manage.py import_consumer_act
+.\.venv311\Scripts\python.exe manage.py create_chunks
+```
+
+Put the Gemini key in the ignored `agent/.env` file using `agent/.env.example` as a template. The application retains the bounded Gemini attempt and local fallback when the model is unavailable.
+
+Run Django from `backend/`:
+
+```powershell
+.\.venv311\Scripts\python.exe manage.py runserver 127.0.0.1:8000
+```
+
+The endpoint is `POST /api/ask/`. The optional `session_id` returned by one response can be sent on the next request to continue that conversation. Recent turns are loaded from the database and provided as context; the legal tools must still verify current claims.
+
+## Frontend
+
+From `frontend/`, install and run Vite:
+
+```powershell
+npm ci
+npm run dev
+```
+
+The development proxy forwards `/api` to `http://localhost:8000` by default. To use another local backend, set `API_PROXY_TARGET`, for example `http://127.0.0.1:8001`.
+
+Build and check the frontend:
+
+```powershell
+npm run lint
+npm run build
+```
+
+For deployment, serve the built frontend and proxy `/api/` to Django on the same origin. This avoids requiring cross-origin browser access. Run Django behind a production WSGI/ASGI server and TLS reverse proxy; do not use `runserver` in production. Set `DJANGO_DEBUG=0`, a generated `DJANGO_SECRET_KEY`, allowed hosts, CSRF trusted origins as needed, and MySQL credentials through environment variables. Run `collectstatic` if serving Django admin assets.
+
+## Verification
+
+Run backend tests from `backend/`:
+
+```powershell
+.\.venv311\Scripts\python.exe manage.py test
+```
+
+Run the real 20-question HTTP benchmark while Django is running:
+
+```powershell
+.\.venv311\Scripts\python.exe evaluation\endpoint_benchmark.py
+```
+
+The benchmark report and raw data are in `evaluation/results/latest.json`.
