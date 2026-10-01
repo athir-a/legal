@@ -1,27 +1,27 @@
-import json
 from pathlib import Path
+import sys
 
 
-CORPUS_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "data"
-    / "processed"
-    / "legal_chunks.json"
-)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+BACKEND_PATH = PROJECT_ROOT / "backend"
+
+if str(BACKEND_PATH) not in sys.path:
+    sys.path.insert(0, str(BACKEND_PATH))
+
+
+import os
+import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+django.setup()
+
+from legaldata.models import LegalDocument
 
 
 def validate_citations(citations):
-    with CORPUS_PATH.open("r", encoding="utf-8") as f:
-        corpus = json.load(f)
-
-    verified_sections = {
-        (
-            item.get("act", "").upper(),
-            str(item.get("section"))
-        ): item
-        for item in corpus
-        if item.get("section") is not None
-    }
+    """
+    Validate citations against the verified MySQL legal corpus.
+    """
 
     validated = []
 
@@ -29,15 +29,17 @@ def validate_citations(citations):
         act = citation.get("act", "")
         section = str(citation.get("section", ""))
 
-        key = (act.upper(), section)
-        source = verified_sections.get(key)
+        exists = LegalDocument.objects.filter(
+            act_title__iexact=act,
+            section_number=section,
+        ).exists()
 
         validated.append({
             "act": act,
             "section": section,
             "page": citation.get("page"),
             "source": citation.get("source"),
-            "valid": source is not None,
+            "valid": exists,
         })
 
     all_valid = (

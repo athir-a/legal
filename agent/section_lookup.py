@@ -1,41 +1,49 @@
-import json
 from pathlib import Path
+import sys
 
 
-CORPUS_PATH = (
-    Path(__file__).resolve().parent.parent
-    / "data"
-    / "processed"
-    / "legal_chunks.json"
-)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+BACKEND_PATH = PROJECT_ROOT / "backend"
+
+if str(BACKEND_PATH) not in sys.path:
+    sys.path.insert(0, str(BACKEND_PATH))
+
+
+import os
+import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+django.setup()
+
+from legaldata.models import LegalDocument
 
 
 def lookup_section(act: str, section: str):
     """
     Deterministically look up an exact legal section
-    from the verified corpus.
+    from the verified MySQL legal corpus.
     """
 
-    with CORPUS_PATH.open("r", encoding="utf-8") as f:
-        corpus = json.load(f)
+    document = LegalDocument.objects.filter(
+        act_title__iexact=act,
+        section_number=str(section),
+    ).first()
 
-    for item in corpus:
-        if (
-            item.get("act", "").upper() == act.upper()
-            and str(item.get("section")) == str(section)
-        ):
-            return {
-                "found": True,
-                "act": item["act"],
-                "section": item["section"],
-                "text": item["text"],
-                "page": item["page"],
-                "source": item["source"],
-            }
+    if document:
+        return {
+            "found": True,
+            "act": document.act_title,
+            "section": document.section_number,
+            "text": document.text,
+            "page": None,
+            "source": document.source,
+            "source_url": document.source_url,
+        }
 
     return {
         "found": False,
         "act": act,
-        "section": section,
+        "section": str(section),
         "message": "No verified provision found in the corpus.",
     }
+    

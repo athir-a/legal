@@ -6,6 +6,9 @@ export default function App() {
   const [textSize, setTextSize] = useState("standard");
   const [contrast, setContrast] = useState(false);
   const [recording, setRecording] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [apiResult, setApiResult] = useState(null);
+  const [apiError, setApiError] = useState("");
   const [issue, setIssue] = useState(
     "I ordered a brand-new laptop for ₹64,000 from an online electronics store. When it arrived, the internal motherboard was malfunctioning and it would not boot. I reported it within 24 hours, but the seller refused a replacement or refund, telling me to contact the authorized brand service center instead.",
   );
@@ -37,10 +40,40 @@ export default function App() {
       "Audio Guide: 'Describe your issue in plain words or click one of the common situation buttons. Our system maps your issue to the Consumer Protection Act, 2019.'",
     );
   }
-  function findRights() {
-    window.alert(
-      "Rights analyzed! Sections 2(10), 2(11), and 84 apply to your issue.",
-    );
+  async function findRights() {
+    const trimmedIssue = issue.trim();
+
+    if (!trimmedIssue) {
+      setApiError("Please describe your issue before checking your rights.");
+      setApiResult(null);
+      return;
+    }
+
+    setLoading(true);
+    setApiError("");
+    setApiResult(null);
+
+    try {
+      const response = await fetch("/api/ask/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question: trimmedIssue }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.detail || data?.error || "Unable to fetch legal guidance.");
+      }
+
+      setApiResult(data);
+    } catch (error) {
+      setApiError(error.message || "Something went wrong while checking your rights.");
+    } finally {
+      setLoading(false);
+    }
   }
   return (
     <div
@@ -307,10 +340,11 @@ export default function App() {
                     <button
                       id="btn-find"
                       type="button"
-                      className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-md hover:shadow-lg transition"
+                      className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-md hover:shadow-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
                       onClick={findRights}
+                      disabled={loading}
                     >
-                      <span>{"Find My Rights & Sections"}</span>
+                      <span>{loading ? "Checking..." : "Find My Rights & Sections"}</span>
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -328,6 +362,46 @@ export default function App() {
                   </div>
                 </div>
               </div>
+
+              {apiError ? (
+                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  {apiError}
+                </div>
+              ) : null}
+
+              {apiResult ? (
+                <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
+                  <div className="flex items-center justify-between gap-3 flex-wrap mb-2">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+                      {apiResult.supported ? "Supported by legal data" : "Check review needed"}
+                    </span>
+                    <span className="text-xs text-slate-600">
+                      Session: {apiResult.session_id?.slice(0, 8) || "new"}
+                    </span>
+                  </div>
+
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
+                    {apiResult.answer}
+                  </p>
+
+                  {apiResult.citations?.length ? (
+                    <div className="mt-4 border-t border-emerald-200 pt-3">
+                      <p className="text-xs font-bold uppercase tracking-wide text-slate-600 mb-2">
+                        Relevant citations
+                      </p>
+                      <ul className="space-y-2 text-sm text-slate-700">
+                        {apiResult.citations.map((citation, index) => (
+                          <li key={`${citation.section || index}-${index}`} className="rounded-lg bg-white/80 p-2 border border-emerald-100">
+                            <span className="font-semibold">{citation.section || "Section"}</span>
+                            {citation.title ? ` — ${citation.title}` : ""}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
               <div
                 className="mt-4 pt-3 border-t border-slate-100"
                 id="problems"
