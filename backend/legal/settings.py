@@ -1,10 +1,3 @@
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'legal_rag',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
-}
+"""Compatibility import; config.settings is the authoritative settings module."""
+
+from config.settings import *  # noqa: F403

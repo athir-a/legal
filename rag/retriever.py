@@ -166,14 +166,14 @@ class LegalRetriever:
                 "Rebuild the index with build_tfidf_index."
             )
 
-    def search(self, query, top_k=5):
+    def search(self, query, top_k=5, retrieval_query=None):
 
         if not isinstance(query, str) or not query.strip():
             return []
 
         top_k = max(1, int(top_k))
 
-        expanded_query = expand_query(query)
+        expanded_query = expand_query(retrieval_query or query)
 
         query_vector = self.vectorizer.transform(
             [expanded_query]
@@ -289,7 +289,7 @@ class LegalRetriever:
 _retriever = None
 
 
-def search(query, top_k=5):
+def search(query, top_k=5, retrieval_query=None):
 
     global _retriever
 
@@ -299,4 +299,5 @@ def search(query, top_k=5):
     return _retriever.search(
         query,
         top_k,
+        retrieval_query=retrieval_query,
     )

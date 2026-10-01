@@ -1,6 +1,86 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
+function parseEvidenceAnswer(answer = "") {
+  const headingPattern = /^### Section (.+)$/gm;
+  const headings = [...answer.matchAll(headingPattern)];
+
+  if (!headings.length) {
+    return { introductionBlocks: [], introduction: answer, sections: [] };
+  }
+
+  const introduction = answer.slice(0, headings[0].index).trim();
+  const introHeadingPattern = /^### (.+)$/gm;
+  const introHeadings = [...introduction.matchAll(introHeadingPattern)];
+  const introductionBlocks = [];
+
+  if (!introHeadings.length) {
+    if (introduction) introductionBlocks.push({ heading: "", content: introduction });
+  } else {
+    if (introduction.slice(0, introHeadings[0].index).trim()) {
+      introductionBlocks.push({
+        heading: "",
+        content: introduction.slice(0, introHeadings[0].index).trim(),
+      });
+    }
+
+    introHeadings.forEach((heading, index) => {
+      const contentStart = heading.index + heading[0].length;
+      const contentEnd = introHeadings[index + 1]?.index ?? introduction.length;
+      introductionBlocks.push({
+        heading: heading[1].trim(),
+        content: introduction.slice(contentStart, contentEnd).trim(),
+      });
+    });
+  }
+
+  const sections = headings.map((heading, index) => {
+    const contentStart = heading.index + heading[0].length;
+    const contentEnd = headings[index + 1]?.index ?? answer.length;
+    const content = answer.slice(contentStart, contentEnd).trim();
+    const excerptMarker = "Evidence excerpt:";
+
+    return {
+      heading: heading[1].trim(),
+      excerpt: content.startsWith(excerptMarker)
+        ? content.slice(excerptMarker.length).trim()
+        : content,
+    };
+  });
+
+  return { introductionBlocks, introduction, sections };
+}
+
+function sortCitations(citations = []) {
+  return [...citations].sort((left, right) => {
+    const leftSection = String(left.section ?? "");
+    const rightSection = String(right.section ?? "");
+    const sectionPattern = /^(\d+)(?:\((\d+)\))?$/;
+    const leftParts = leftSection.match(sectionPattern);
+    const rightParts = rightSection.match(sectionPattern);
+
+    if (leftParts && rightParts) {
+      const sectionOrder = Number(leftParts[1]) - Number(rightParts[1]);
+      if (sectionOrder) return sectionOrder;
+      return Number(leftParts[2] || 0) - Number(rightParts[2] || 0);
+    }
+
+    return leftSection.localeCompare(rightSection, undefined, { numeric: true });
+  });
+}
+
+function excerptPreview(excerpt, maxLength = 280) {
+  if (excerpt.length <= maxLength) return excerpt;
+
+  const preview = excerpt.slice(0, maxLength).trimEnd();
+  const paragraphBoundary = preview.lastIndexOf("\n\n");
+  const sentenceBoundary = preview.lastIndexOf(". ");
+  const boundary = Math.max(paragraphBoundary, sentenceBoundary);
+  const end = boundary >= maxLength / 2 ? boundary + (boundary === sentenceBoundary ? 1 : 0) : preview.length;
+
+  return `${preview.slice(0, end).trimEnd()}…`;
+}
+
 // Faithful conversion of the supplied HTML: the answer and voice input are demos.
 export default function App() {
   const [textSize, setTextSize] = useState("standard");
@@ -9,6 +89,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [apiResult, setApiResult] = useState(null);
   const [apiError, setApiError] = useState("");
+  const [sessionId, setSessionId] = useState("");
   const [issue, setIssue] = useState(
     "I ordered a brand-new laptop for ₹64,000 from an online electronics store. When it arrived, the internal motherboard was malfunctioning and it would not boot. I reported it within 24 hours, but the seller refused a replacement or refund, telling me to contact the authorized brand service center instead.",
   );
@@ -54,27 +135,35 @@ export default function App() {
     setApiResult(null);
 
     try {
+      const requestBody = { question: trimmedIssue };
+      if (sessionId) requestBody.session_id = sessionId;
+
       const response = await fetch("/api/ask/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question: trimmedIssue }),
+        body: JSON.stringify(requestBody),
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(data?.detail || data?.error || "Unable to fetch legal guidance.");
       }
 
       setApiResult(data);
+  if (data.session_id) setSessionId(data.session_id);
     } catch (error) {
       setApiError(error.message || "Something went wrong while checking your rights.");
     } finally {
       setLoading(false);
     }
   }
+
+  const answerPresentation = parseEvidenceAnswer(apiResult?.answer || "");
+  const sortedCitations = sortCitations(apiResult?.citations || []);
+
   return (
     <div
       className={`consumer-app min-h-screen flex flex-col antialiased selection:bg-amber-200 ${textSize === "large" ? "text-lg-mode" : textSize === "xl" ? "text-xl-mode" : ""} ${contrast ? "high-contrast" : ""}`}
@@ -289,6 +378,7 @@ export default function App() {
                 <textarea
                   id="issue-text"
                   rows="5"
+                  maxLength={10000}
                   className="w-full border-2 border-slate-200 rounded-xl p-4 text-slate-900 text-base leading-relaxed focus:border-amber-600 focus:outline-none transition shadow-inner placeholder:text-slate-400"
                   placeholder="e.g. I ordered a brand new 55-inch television on Amazon for ₹38,000. When it arrived yesterday, the screen was cracked inside the box. The seller refused a replacement claiming 'customer induced damage'..."
                   value={issue}
@@ -380,25 +470,194 @@ export default function App() {
                     </span>
                   </div>
 
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
-                    {apiResult.answer}
-                  </p>
+                  {answerPresentation.sections.length ? (
+                    <div className="mt-4 space-y-3">
+                      {answerPresentation.introductionBlocks.map((block, index) => {
+                        const lines = block.content.split("\n").map((line) => line.trim()).filter(Boolean);
+                        const bullets = lines.length > 0 && lines.every((line) => line.startsWith("- "));
+                        const headingStyle = block.heading.includes("does not establish")
+                          ? "border-amber-400"
+                          : block.heading.includes("relate to")
+                            ? "border-slate-300"
+                            : "border-emerald-500";
+
+                        return (
+                          <section
+                            key={`${block.heading || "intro"}-${index}`}
+                            className={block.heading ? `border-l-4 ${headingStyle} pl-4 py-1` : ""}
+                          >
+                            {block.heading ? (
+                              <h3 className="text-sm font-bold text-slate-900 mb-1">
+                                {block.heading}
+                              </h3>
+                            ) : null}
+                            {bullets ? (
+                              <ul className="space-y-2 text-sm leading-relaxed text-slate-700">
+                                {lines.map((line, lineIndex) => (
+                                  <li key={lineIndex} className="list-disc ml-5">
+                                    {line.slice(2)}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                                {block.content}
+                              </p>
+                            )}
+                          </section>
+                        );
+                      })}
+                      {answerPresentation.sections.map((section, index) => (
+                        (() => {
+                          const preview = excerptPreview(section.excerpt);
+                          const hasMore = preview.length < section.excerpt.length;
+
+                          return (
+                            <article
+                              key={`${section.heading}-${index}`}
+                              className="rounded-xl border border-emerald-200 bg-white p-4 shadow-sm"
+                            >
+                              <h3 className="text-base font-bold leading-snug text-slate-900">
+                                {section.heading}
+                              </h3>
+                              <div className="mt-3 border-l-2 border-amber-400 pl-3">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                                  Evidence excerpt
+                                </span>
+                                <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                                  {preview}
+                                </p>
+                                {hasMore ? (
+                                  <details className="mt-2">
+                                    <summary className="cursor-pointer text-xs font-semibold text-emerald-800 hover:text-emerald-900">
+                                      View retrieved excerpt
+                                    </summary>
+                                    <p className="mt-2 whitespace-pre-wrap border-t border-slate-100 pt-2 text-xs leading-relaxed text-slate-600">
+                                      {section.excerpt}
+                                    </p>
+                                  </details>
+                                ) : null}
+                              </div>
+                            </article>
+                          );
+                        })()
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
+                      {apiResult.answer}
+                    </p>
+                  )}
 
                   {apiResult.citations?.length ? (
-                    <div className="mt-4 border-t border-emerald-200 pt-3">
-                      <p className="text-xs font-bold uppercase tracking-wide text-slate-600 mb-2">
-                        Relevant citations
-                      </p>
-                      <ul className="space-y-2 text-sm text-slate-700">
-                        {apiResult.citations.map((citation, index) => (
-                          <li key={`${citation.section || index}-${index}`} className="rounded-lg bg-white/80 p-2 border border-emerald-100">
-                            <span className="font-semibold">{citation.section || "Section"}</span>
-                            {citation.title ? ` — ${citation.title}` : ""}
+                    <div className="mt-4 border-t border-emerald-200 pt-4">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-600">
+                            Legal Sources
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            Sections retrieved from the Consumer Protection Act, 2019
+                          </p>
+                        </div>
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-emerald-800 border border-emerald-200">
+                          <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                          Verified
+                        </span>
+                      </div>
+
+                      <ul className="space-y-2.5">
+                        {sortedCitations.map((citation, index) => (
+                          <li
+                            key={`${citation.section || index}-${index}`}
+                            className="flex items-start gap-3 rounded-xl border border-emerald-100 bg-white/80 p-3 shadow-sm"
+                          >
+                            <span className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-md bg-emerald-100 text-emerald-700">
+                              <svg
+                                className="h-3.5 w-3.5"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path d="M7 3.5A2.5 2.5 0 0 1 9.5 1h7A2.5 2.5 0 0 1 19 3.5V20a1 1 0 0 1-1.52.85L13 18.2l-4.48 2.65A1 1 0 0 1 7 20V3.5Zm2.5-.5a.5.5 0 0 0-.5.5v15.17l3.48-2.06a1 1 0 0 1 1.04 0L15.5 18.17V3.5a.5.5 0 0 0-.5-.5h-5Z" />
+                              </svg>
+                            </span>
+
+                            <div className="min-w-0 flex-1">
+                              <div className="text-sm font-semibold text-slate-900">
+                                Section {citation.section || "Unknown"}
+                              </div>
+                              {citation.title ? (
+                                <div className="mt-0.5 text-xs text-slate-600 break-words">
+                                  {citation.title}
+                                </div>
+                              ) : null}
+                            </div>
                           </li>
                         ))}
                       </ul>
+
+                      {Array.isArray(apiResult.claim_citations) && apiResult.claim_citations.length ? (
+                        <details className="mt-4 overflow-hidden rounded-xl border border-slate-200 bg-white/70">
+                          <summary className="cursor-pointer list-none px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                            View claim-level verification
+                          </summary>
+
+                          <div className="border-t border-slate-200 p-3 space-y-3">
+                            {apiResult.claim_citations.map((claim, index) => (
+                              <div
+                                key={`${claim.claim || index}-${index}`}
+                                className="rounded-lg border border-slate-200 bg-slate-50 p-3"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <p className="text-sm text-slate-800 leading-relaxed">
+                                    {claim.claim}
+                                  </p>
+
+                                  {claim.supported === true ? (
+                                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                                      ✓
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+                                      !
+                                    </span>
+                                  )}
+                                </div>
+
+                                {Array.isArray(claim.citations) && claim.citations.length ? (
+                                  <ul className="mt-2 space-y-1.5 text-xs text-slate-600">
+                                    {claim.citations.map((claimCitation, claimIndex) => (
+                                      <li
+                                        key={`${claimCitation.section || claimIndex}-${claimIndex}`}
+                                        className="flex items-center gap-2"
+                                      >
+                                        <span className="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
+                                        Section {claimCitation.section || "Unknown"}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        </details>
+                      ) : null}
+
+                      <p className="mt-3 text-[11px] text-slate-500 leading-relaxed">
+                        Sources are retrieved from the project's legal corpus. This system provides legal information, not legal advice.
+                      </p>
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="mt-4 border-t border-slate-200 pt-4">
+                      <p className="text-sm text-slate-600">
+                        No verified legal citations were returned for this answer.
+                      </p>
+                      <p className="mt-3 text-[11px] text-slate-500 leading-relaxed">
+                        Sources are retrieved from the project's legal corpus. This system provides legal information, not legal advice.
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : null}
 
@@ -461,161 +720,25 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-blue-50/70 to-indigo-50/40 border border-blue-200 rounded-2xl p-6 sm:p-7 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-900 border border-blue-200">
-                  {" ⚖️ What the law says about your situation "}
-                </span>
-                <span className="text-xs font-semibold text-blue-800">
-                  {"High Legal Certainty (99%)"}
-                </span>
-              </div>
-              <h2 className="serif-title text-xl font-bold text-slate-900 mb-2">
-                {
-                  " You are entitled to a full replacement or refund. The seller cannot dodge liability. "
-                }
+            <div className="border-l-4 border-emerald-600 bg-emerald-50/70 p-5 sm:p-6">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+                Evidence-backed legal information
+              </span>
+              <h2 className="serif-title mt-2 text-xl font-bold text-slate-900">
+                Review the provisions retrieved for your question
               </h2>
-              <p className="text-sm text-slate-700 leading-relaxed mb-4">
-                {
-                  " Under the Consumer Protection Act, 2019, passing the buck to the brand's service center is explicitly considered a "
-                }
-                <strong>{"“Deficiency in Service”"}</strong>
-                {
-                  ". E-commerce marketplaces and sellers are jointly accountable for delivering goods free from defects. "
-                }
+              <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                The answer above presents excerpts from retrieved legal sections and links them to verified corpus citations. It provides legal information, not a determination of entitlement or legal advice.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-blue-200/60 text-xs">
-                <div className="bg-white/80 p-3 rounded-xl border border-blue-100">
-                  <span className="font-bold text-blue-900 block mb-0.5">
-                    {"1. No Waiver Clauses"}
-                  </span>
-                  <span className="text-slate-600">
-                    {
-                      '"Goods once sold cannot be returned" is legally void under Section 2(47).'
-                    }
-                  </span>
-                </div>
-                <div className="bg-white/80 p-3 rounded-xl border border-blue-100">
-                  <span className="font-bold text-blue-900 block mb-0.5">
-                    {"2. Joint Product Liability"}
-                  </span>
-                  <span className="text-slate-600">
-                    {
-                      "Both seller and maker must rectify defects under Section 84 & 86."
-                    }
-                  </span>
-                </div>
-                <div className="bg-white/80 p-3 rounded-xl border border-blue-100">
-                  <span className="font-bold text-blue-900 block mb-0.5">
-                    {"3. 48-Hour Acknowledgment"}
-                  </span>
-                  <span className="text-slate-600">
-                    {
-                      "E-commerce Rules mandate resolving citizen grievances within 1 month."
-                    }
-                  </span>
-                </div>
-              </div>
             </div>
             <div className="space-y-4" id="rights">
-              <h3 className="text-sm uppercase tracking-wider font-bold text-slate-500">
-                {" Applicable Sections in Act No. 35 of 2019: "}
-              </h3>
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2.5 py-0.5 text-xs font-extrabold rounded bg-slate-900 text-white">
-                        {"Section 2(10)"}
-                      </span>
-                      <span className="text-sm font-bold text-slate-900">
-                        {"“Defect in Goods”"}
-                      </span>
-                      <span className="text-xs bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded">
-                        {"Core Ground"}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-600 mt-1">
-                      <strong>{"In Plain Words:"}</strong>
-                      {
-                        " Any imperfection, shortcoming, or failure in quality, performance, or purity required by law or contract. A dead motherboard on arrival is a textbook statutory defect. "
-                      }
-                    </p>
-                  </div>
-                </div>
-                <details className="mt-3 pt-3 border-t border-slate-100 text-xs">
-                  <summary className="cursor-pointer font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1 select-none">
-                    <span>{"View Official Bare Act Gazette Text"}</span>
-                  </summary>
-                  <div className="mt-2 p-3 bg-slate-50 rounded-lg text-slate-700 font-serif italic border border-slate-200 leading-relaxed">
-                    {
-                      " “‘defect’ means any fault, imperfection or shortcoming in the quality, quantity, potency, purity or standard which is required to be maintained by or under any law for the time being in force or under any contract, express or implied...” "
-                    }
-                  </div>
-                </details>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2.5 py-0.5 text-xs font-extrabold rounded bg-slate-900 text-white">
-                        {"Section 2(11)"}
-                      </span>
-                      <span className="text-sm font-bold text-slate-900">
-                        {"“Deficiency in Service”"}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-600 mt-1">
-                      <strong>{"In Plain Words:"}</strong>
-                      {
-                        " Refusing legitimate return requests or directing customers away from lawful resolution constitutes administrative and contractual deficiency by the seller. "
-                      }
-                    </p>
-                  </div>
-                </div>
-                <details className="mt-3 pt-3 border-t border-slate-100 text-xs">
-                  <summary className="cursor-pointer font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1 select-none">
-                    <span>{"View Official Bare Act Gazette Text"}</span>
-                  </summary>
-                  <div className="mt-2 p-3 bg-slate-50 rounded-lg text-slate-700 font-serif italic border border-slate-200 leading-relaxed">
-                    {
-                      " “‘deficiency’ means any fault, imperfection, shortcoming or inadequacy in the quality, nature and manner of performance which is required to be maintained by or under any law or in pursuance of a contract...” "
-                    }
-                  </div>
-                </details>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-slate-300 transition">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-2.5 py-0.5 text-xs font-extrabold rounded bg-slate-900 text-white">
-                        {"Sections 84 & 86"}
-                      </span>
-                      <span className="text-sm font-bold text-slate-900">
-                        {"“Strict Product Liability Action”"}
-                      </span>
-                      <span className="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">
-                        {"Remedy"}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-600 mt-1">
-                      <strong>{"In Plain Words:"}</strong>
-                      {
-                        " A product seller or e-commerce entity is legally bound to compensate you or replace goods if they fail to conform to an express warranty or prevent lawful inspection. "
-                      }
-                    </p>
-                  </div>
-                </div>
-                <details className="mt-3 pt-3 border-t border-slate-100 text-xs">
-                  <summary className="cursor-pointer font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1 select-none">
-                    <span>{"View Official Bare Act Gazette Text"}</span>
-                  </summary>
-                  <div className="mt-2 p-3 bg-slate-50 rounded-lg text-slate-700 font-serif italic border border-slate-200 leading-relaxed">
-                    {
-                      " “A product manufacturer shall be liable in a product liability action if the product contains a manufacturing defect, or deviates from manufacturing specifications, or does not conform to an express warranty...” "
-                    }
-                  </div>
-                </details>
+              <div className="border-b border-slate-200 pb-3">
+                <h3 className="text-sm font-bold text-slate-900">
+                  About the legal sources
+                </h3>
+                <p className="mt-1 text-sm leading-relaxed text-slate-600">
+                  The sources shown with each answer come from the project's legal corpus. Review the cited sections for the statutory wording relevant to your question; this guide does not assess individual facts or predict an outcome.
+                </p>
               </div>
             </div>
           </section>
@@ -631,9 +754,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 mb-3">
-                {
-                  "Check what you have ready. Don't worry if missing one — your Tax Invoice is the key!"
-                }
+                Keep records that help document the purchase, issue, and communications. Relevant records vary by situation.
               </p>
               <div className="space-y-2.5 text-xs">
                 <label className="flex items-start gap-2.5 p-2 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer">
@@ -700,17 +821,15 @@ export default function App() {
             <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-md border border-slate-800">
               <div className="flex items-center justify-between text-xs mb-3 text-slate-400">
                 <span className="uppercase tracking-wider font-bold text-emerald-400">
-                  {"● Sovereign Redressal"}
+                  {"Consumer Helpline"}
                 </span>
-                <span>{"Dept. of Consumer Affairs"}</span>
+                <span>{"National Consumer Helpline"}</span>
               </div>
               <h4 className="text-lg font-bold text-white mb-1">
-                {"Need a human advisor right now?"}
+                {"Looking for official consumer resources?"}
               </h4>
               <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                {
-                  " Guidance is 100% free and run by the Government of India. Available in English, Hindi, and 12 regional languages. "
-                }
+                Contact the National Consumer Helpline for information about consumer complaint channels.
               </p>
               <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700 mb-4 flex items-center justify-between">
                 <div>
@@ -744,7 +863,7 @@ export default function App() {
                 {"Next Steps Guide"}
               </span>
               <h4 className="text-sm font-bold text-slate-900 mb-3">
-                {"3 Simple Steps You Can Take Today"}
+                {"Practical steps to consider"}
               </h4>
               <ol className="space-y-3 text-xs text-slate-700">
                 <li className="flex items-start gap-2.5">
@@ -752,10 +871,8 @@ export default function App() {
                     {"1"}
                   </span>
                   <div>
-                    <strong>{"Save invoice & chats:"}</strong>
-                    {
-                      " Keep clear screenshots of the refusal message on your phone. "
-                    }
+                    <strong>{"Keep relevant records:"}</strong>
+                    Save receipts, order details, messages, and other records related to the issue.
                   </div>
                 </li>
                 <li className="flex items-start gap-2.5">
@@ -763,10 +880,8 @@ export default function App() {
                     {"2"}
                   </span>
                   <div>
-                    <strong>{"Call 1915 or send written notice:"}</strong>
-                    {
-                      " Quote Section 2(10) Defect and demand a replacement within 48 hours. "
-                    }
+                    <strong>{"Document communications:"}</strong>
+                    Keep copies of written communications with the seller or service provider.
                   </div>
                 </li>
                 <li className="flex items-start gap-2.5">
@@ -774,10 +889,8 @@ export default function App() {
                     {"3"}
                   </span>
                   <div>
-                    <strong>{"Online filing (e-Daakhil):"}</strong>
-                    {
-                      " If ignored, file on edaakhil.nic.in without requiring an advocate. "
-                    }
+                    <strong>{"Review official guidance:"}</strong>
+                    Check current complaint procedures with an official consumer resource or qualified adviser.
                   </div>
                 </li>
               </ol>

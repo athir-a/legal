@@ -28,6 +28,10 @@ class AskQuestionView(APIView):
 
     Routes the question through ask_agent() and stores the
     conversation in MySQL-backed session memory.
+
+    Supported response languages:
+    - en: English
+    - ml: Malayalam
     """
 
     def post(self, request, *args, **kwargs):
@@ -56,28 +60,55 @@ class AskQuestionView(APIView):
             )
 
         question = serializer.validated_data["question"]
+        language = serializer.validated_data.get("language", "en")
 
         # --------------------------------------------------------------
         # 2. Get or create session
         # --------------------------------------------------------------
 
-        session_id = request.data.get("session_id")
-
-        if not session_id:
-            session_id = str(uuid.uuid4())
-
-        chat_session, _ = ChatSession.objects.get_or_create(
-            session_id=session_id
+        session_id = (
+            serializer.validated_data.get("session_id")
+            or str(uuid.uuid4())
         )
 
         # --------------------------------------------------------------
-        # 3. Run legal agent
+        # 3. Retrieve recent context and run legal agent
         # --------------------------------------------------------------
 
         try:
+            chat_session, _ = ChatSession.objects.get_or_create(
+                session_id=session_id
+            )
+
+            prior_messages = list(
+                ChatMessage.objects
+                .filter(session=chat_session)
+                .order_by("-created_at", "-id")[:6]
+            )
+
+            conversation_history = [
+                {
+                    "question": message.question,
+                    "answer": message.answer,
+                }
+                for message in reversed(prior_messages)
+            ]
+
             from agent import ask_agent
 
-            legal_answer = ask_agent(question)
+            # Keep the existing English call shape unchanged so that
+            # existing tests and integrations remain backward-compatible.
+            if language == "ml":
+                legal_answer = ask_agent(
+                    question,
+                    conversation_history=conversation_history,
+                    language=language,
+                )
+            else:
+                legal_answer = ask_agent(
+                    question,
+                    conversation_history=conversation_history,
+                )
 
             # ----------------------------------------------------------
             # 4. Save conversation to MySQL
@@ -99,6 +130,7 @@ class AskQuestionView(APIView):
                     "correlation_id": correlation_id,
                     "session_id": session_id,
                     "question": question,
+                    "language": language,
                     "answer": legal_answer.answer,
                     "supported": legal_answer.supported,
                     "citations": [
@@ -139,6 +171,7 @@ class AskQuestionView(APIView):
                     "session_id": session_id,
                     "status": 200,
                     "latency_ms": latency_ms,
+                    "language": language,
                 },
             )
 
@@ -158,7 +191,7 @@ class AskQuestionView(APIView):
                     "session_id": session_id,
                     "status": 500,
                     "latency_ms": latency_ms,
-                    "error": str(exc),
+                    "error_type": type(exc).__name__,
                 },
             )
 
@@ -168,7 +201,7 @@ class AskQuestionView(APIView):
                         "The legal research service "
                         "could not process the request."
                     ),
-                    "detail": str(exc),
+                    "detail": "Request processing failed.",
                     "correlation_id": correlation_id,
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
