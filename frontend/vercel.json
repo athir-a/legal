@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/ask.js": {
+    "api/legal-ask.js": {
       "runtime": "nodejs24.x"
     }
   }
