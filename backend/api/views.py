@@ -186,6 +186,7 @@ class AskQuestionView(APIView):
 
             logger.error(
                 "legal_request_failed",
+                exc_info=True,
                 extra={
                     "correlation_id": correlation_id,
                     "session_id": session_id,

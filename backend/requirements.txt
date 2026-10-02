@@ -8,4 +8,5 @@ python-dotenv
 fastembed
 faiss-cpu
 numpy>=1.25.0
+scikit-learn
 mysqlclient>=2.2,<3.0

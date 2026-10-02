@@ -1,3 +1,4 @@
+
 import os
 import secrets
 from pathlib import Path
@@ -9,43 +10,64 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_ROOT = BASE_DIR.parent
 load_dotenv(PROJECT_ROOT / ".env")
 
+
+# ============================================================
+# SECURITY / DEPLOYMENT SETTINGS
+# ============================================================
+
+# Local development defaults to DEBUG=True.
+# Render should set DJANGO_DEBUG=false.
 DEBUG = os.getenv("DJANGO_DEBUG", "true").strip().lower() in {
     "1", "true", "yes", "on"
 }
 
+
+# Secret key
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "").strip()
+
 if not SECRET_KEY:
     if not DEBUG:
         raise ImproperlyConfigured(
             "DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is disabled."
         )
+
+    # Safe fallback for local development only.
     SECRET_KEY = secrets.token_urlsafe(48)
 
-allowed_hosts_setting = os.getenv("DJANGO_ALLOWED_HOSTS")
-if not DEBUG and not allowed_hosts_setting:
-    raise ImproperlyConfigured(
-        "DJANGO_ALLOWED_HOSTS must be set when DJANGO_DEBUG is disabled."
-    )
+
+# Allowed hosts
+allowed_hosts_setting = os.getenv(
+    "DJANGO_ALLOWED_HOSTS",
+    "localhost,127.0.0.1,testserver"
+).strip()
 
 ALLOWED_HOSTS = [
     host.strip()
-    for host in (
-        allowed_hosts_setting or "localhost,127.0.0.1,testserver"
-    ).split(",")
+    for host in allowed_hosts_setting.split(",")
     if host.strip()
 ]
+
 if not DEBUG and not ALLOWED_HOSTS:
     raise ImproperlyConfigured(
         "DJANGO_ALLOWED_HOSTS must contain at least one production host."
     )
 
+
+# CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    for origin in os.getenv(
+        "DJANGO_CSRF_TRUSTED_ORIGINS",
+        ""
+    ).split(",")
     if origin.strip()
 ]
 
-# Application definition
+
+# ============================================================
+# APPLICATION DEFINITION
+# ============================================================
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,6 +79,8 @@ INSTALLED_APPS = [
     'api',
     'legaldata',
 ]
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -67,7 +91,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 ROOT_URLCONF = 'config.urls'
+
 
 TEMPLATES = [
     {
@@ -85,18 +111,35 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Database. Local development remains SQLite unless USE_MYSQL is explicitly set.
-if os.getenv('USE_MYSQL', '').strip().lower() in {'1', 'true', 'yes'}:
+
+# ============================================================
+# DATABASE
+# ============================================================
+
+# Local development remains SQLite.
+# MySQL is used only when USE_MYSQL is explicitly enabled.
+
+if os.getenv('USE_MYSQL', '').strip().lower() in {
+    '1',
+    'true',
+    'yes'
+}:
+
     required_mysql_settings = (
         "MYSQL_DATABASE",
         "MYSQL_USER",
         "MYSQL_PASSWORD",
     )
+
     missing_mysql_settings = [
-        name for name in required_mysql_settings if not os.getenv(name)
+        name
+        for name in required_mysql_settings
+        if not os.getenv(name)
     ]
+
     if missing_mysql_settings:
         raise ImproperlyConfigured(
             "Missing required MySQL environment variables: "
@@ -111,10 +154,14 @@ if os.getenv('USE_MYSQL', '').strip().lower() in {'1', 'true', 'yes'}:
             'PASSWORD': os.environ['MYSQL_PASSWORD'],
             'HOST': os.getenv('MYSQL_HOST', '127.0.0.1'),
             'PORT': os.getenv('MYSQL_PORT', '3306'),
-            'OPTIONS': {'charset': 'utf8mb4'},
+            'OPTIONS': {
+                'charset': 'utf8mb4'
+            },
         }
     }
+
 else:
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -122,39 +169,73 @@ else:
         }
     }
 
-# Password validation
+
+# ============================================================
+# PASSWORD VALIDATION
+# ============================================================
+
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME':
+            'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME':
+            'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME':
+            'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME':
+            'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
 
-# Internationalization
+
+# ============================================================
+# INTERNATIONALIZATION
+# ============================================================
+
 LANGUAGE_CODE = 'en-us'
+
 TIME_ZONE = 'UTC'
+
 USE_I18N = True
+
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+
+# ============================================================
+# STATIC FILES
+# ============================================================
+
+STATIC_URL = '/static/'
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+
+# ============================================================
+# SESSION / CSRF SECURITY
+# ============================================================
+
 SESSION_COOKIE_SECURE = not DEBUG
+
 CSRF_COOKIE_SECURE = not DEBUG
 
-# Default primary key field type
+
+# ============================================================
+# DEFAULT PRIMARY KEY
+# ============================================================
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Django REST Framework configuration
+
+# ============================================================
+# DJANGO REST FRAMEWORK
+# ============================================================
+
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -162,21 +243,35 @@ REST_FRAMEWORK = {
     ],
 }
 
+
+# ============================================================
+# LOGGING
+# ============================================================
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+
     'formatters': {
         'structured': {
-            'format': '{levelname} | correlation_id={correlation_id} | session_id={session_id} | latency_ms={latency_ms} | {message}',
+            'format': (
+                '{levelname} | '
+                'correlation_id={correlation_id} | '
+                'session_id={session_id} | '
+                'latency_ms={latency_ms} | '
+                '{message}'
+            ),
             'style': '{',
         },
     },
+
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
             'formatter': 'structured',
         },
     },
+
     'loggers': {
         'api': {
             'handlers': ['console'],
