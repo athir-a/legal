@@ -8,7 +8,7 @@ class Command(BaseCommand):
     help = "Import Consumer Protection Act sections from JSON"
 
     def handle(self, *args, **options):
-        file_path = Path("../data/raw/consumer_protection_act.json")
+        file_path = Path(__file__).resolve().parents[4] / "data" / "raw" / "consumer_protection_act.json"
 
         with open(file_path, "r", encoding="utf-8") as f:
             sections = json.load(f)
