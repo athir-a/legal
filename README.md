@@ -573,10 +573,10 @@ All production API keys and configuration values should be stored using the depl
 
 # 👥 Team
 
-Bhoomika K B
-Irin Maria Varghese
-Ardhra K Manoj
-Athira K Jayan
+- Bhoomika K B
+- Irin Maria Varghese
+- Ardhra K Manoj
+- Athira K Jayan
 
 ---
 
