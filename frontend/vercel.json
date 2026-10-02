@@ -1,8 +1,6 @@
 {
   "functions": {
-    "api/legal-ask.js": {
-      "runtime": "nodejs24.x"
-    }
+    "api/legal-ask.js": {}
   }
 }
 
