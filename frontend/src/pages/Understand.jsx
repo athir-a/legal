@@ -166,9 +166,12 @@ export default function Understand({
     setStatus("Analyzing your request with AI agent...");
 
     const mappedLang = language.startsWith("ml") ? "ml" : "en";
+    const apiBaseUrl = (
+      import.meta.env.VITE_API_URL || "https://legal-gx3z.onrender.com"
+    ).replace(/\/+$/, "");
 
     try {
-      const response = await fetch("/api/ask/", {
+      const response = await fetch(`${apiBaseUrl}/api/ask/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

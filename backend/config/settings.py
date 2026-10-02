@@ -4,6 +4,7 @@ import secrets
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,13 +55,42 @@ if not DEBUG and not ALLOWED_HOSTS:
 
 
 # CSRF trusted origins
+csrf_trusted_origins_setting = os.getenv(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        "https://legal-lilac4.vercel.app,http://localhost:5173"
+    )
+).strip()
+
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv(
-        "DJANGO_CSRF_TRUSTED_ORIGINS",
-        ""
-    ).split(",")
+    for origin in csrf_trusted_origins_setting.split(",")
     if origin.strip()
+]
+
+
+# CORS allowed origins
+cors_allowed_origins_setting = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    os.getenv(
+        "DJANGO_CORS_ALLOWED_ORIGINS",
+        "http://localhost:5173,https://legal-lilac4.vercel.app"
+    )
+).strip()
+
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in cors_allowed_origins_setting.split(",")
+    if origin.strip()
+]
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'x-correlation-id',
+]
+
+CORS_EXPOSE_HEADERS = [
+    'x-correlation-id',
 ]
 
 
@@ -76,6 +106,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'corsheaders',
+
     'api',
     'legaldata',
 ]
@@ -83,6 +115,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
