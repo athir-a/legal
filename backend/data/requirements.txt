@@ -1,0 +1,3 @@
+# Dependencies for Legal Data / Corpus Extraction Pipeline
+pypdf>=5.0.0
+reportlab>=4.0.0

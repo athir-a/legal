@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 AGENT_PATH = PROJECT_ROOT / "agent"
+if not AGENT_PATH.exists():
+    PROJECT_ROOT = Path(__file__).resolve().parents[1]
+    AGENT_PATH = PROJECT_ROOT / "agent"
 
 if str(AGENT_PATH) not in sys.path:
     sys.path.insert(0, str(AGENT_PATH))

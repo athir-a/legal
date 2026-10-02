@@ -1,0 +1,30 @@
+{
+  "prompt_version": "v1",
+  "benchmark": "legal_rag_20_question",
+  "results": {
+    "http_success": {
+      "passed": 20,
+      "total": 20,
+      "score": 1.0
+    },
+    "expected_section_recall": {
+      "matched": 25,
+      "expected": 25,
+      "score": 1.0
+    },
+    "citation_bearing_responses": {
+      "passed": 19,
+      "total": 20,
+      "score": 0.95
+    },
+    "expected_unsupported_response": {
+      "passed": 1,
+      "total": 1,
+      "score": 1.0
+    }
+  },
+  "latency_seconds": {
+    "p50": 1.167,
+    "p95": 1.396
+  }
+}

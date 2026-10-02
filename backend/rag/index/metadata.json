@@ -1,0 +1,42 @@
+[
+  {
+    "id": "mock_act_part_01_001",
+    "act": "MOCK_ACT",
+    "section": null,
+    "text": "THE SYNTHETIC MOCK ACT, 2026\nAn Act for testing legal text extraction, chunking, and citation pipelines in the Verified Legal Research Assistant\nproject.",
+    "page": 1,
+    "source": "synthetic test data"
+  },
+  {
+    "id": "mock_act_1_001",
+    "act": "MOCK_ACT",
+    "section": "1",
+    "text": "Section 1. Short title, extent and commencement.—(1) This Act may be called the Synthetic Mock Act, 2026.\n(2) It extends to all testing environments of the project.\n(3) It shall come into force immediately and serves solely as mock verification data.",
+    "page": 1,
+    "source": "synthetic test data"
+  },
+  {
+    "id": "mock_act_2_001",
+    "act": "MOCK_ACT",
+    "section": "2",
+    "text": "Section 2. Definitions.—In this Act, unless the context otherwise requires,—\n(a) \"mock document\" means synthetic text generated strictly for testing;\n(b) \"pipeline\" means the verified legal text extraction and chunking workflow;\n(c) \"verifier\" means a component ensuring answers cite substantiated corpus evidence.",
+    "page": 1,
+    "source": "synthetic test data"
+  },
+  {
+    "id": "mock_act_3_001",
+    "act": "MOCK_ACT",
+    "section": "3",
+    "text": "Section 3. Evidence verification requirement.—(1) A legal research assistant shall deliver information only\nwhen supported by verified legal evidence in the corpus.\n(2) If a relevant provision cannot be substantiated by verified text, the system must not invent an answer.",
+    "page": 2,
+    "source": "synthetic test data"
+  },
+  {
+    "id": "mock_act_4_001",
+    "act": "MOCK_ACT",
+    "section": "4",
+    "text": "Section 4. Penalty for fabricated law.—(1) Any component generating unsubstantiated or hallucinated\nprovisions shall be flagged for verification failure.\n(2) Citations must accurately reference the Act name, section number, and exact extracted text.",
+    "page": 2,
+    "source": "synthetic test data"
+  }
+]
